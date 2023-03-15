@@ -1,7 +1,6 @@
 const express = require('express');
 require('dotenv').config()
-const mongoose = require('mongoose')
-// const { MongoClient, ServerApiVersion } = require('mongodb')
+const { MongoClient, ServerApiVersion } = require('mongodb')
 const authMiddleware = require('./auth/authMiddleware')
 
 const pw = process.env.MONGODB_PW;
@@ -10,36 +9,26 @@ const mongoDbCluster = process.env.MONGODB_CLUSTER;
 const url = `mongodb+srv://andiadmin:${pw}@cluster0.swbor.mongodb.net/casbinExampleApp?retryWrites=true&w=majority`;
 
 /**
- * Connect to the mongoDB database (with mongoose)
- */
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
-const noteSchema = new mongoose.Schema({
-  content: String,
-  important: Boolean,
-})
-const Note = mongoose.model('Note', noteSchema)
-const note = new Note({
-  content: 'HTML is Easy!!!',
-  important: true,
-})
-// note.save().then(result => {
-//   console.log('note saved!')
-//   mongoose.connection.close()
-// })
-
-
-/**
  * Connect to the mongoDB database (without mongoose)
  */
-// const client = new MongoClient(url2, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
+const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+client.connect().then(() => {
+  console.log('Connected to MongoDB');
+  const db = client.db('casbinExampleApp');
+  const notes = db.collection('notes');
 
-//   client.close();
-// });
+  // show all notes
+  notes.find({}).toArray().then((result) => {
+    console.log('All notes:', result);
+  })
 
+  // add a note
+  // notes.insertOne({ content: 'Easy with Copilot', important: true }).then((result) => {
+  //   console.log('Note added:', result);
+  // });
+}).catch(err => {
+  console.log('Error connecting to MongoDB', err);
+});
 
 /**
  * Create the express app
