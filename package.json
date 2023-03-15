@@ -12,9 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "casbin": "^5.24.4",
+    "casbin-mongodb-adapter": "^1.2.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "mongodb": "^5.1.0",
+    "mongodb": "^3.5.9",
     "mongoose": "^7.0.1",
     "nodemon": "^2.0.21"
   }
