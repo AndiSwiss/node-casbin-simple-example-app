@@ -7,7 +7,8 @@ p, user, /users/info, GET
 p, poweruser, /allowlist, POST
 p, poweruser, /allowlist/*, (GET)|(PATCH)|(DELETE)
 
-p, admin, /users, POST
+p, admin, /users, (POST)
+p, admin, /users/*, (GET)|(PATCH)|(DELETE)
 
 # Transitive groups
 # =================
