@@ -1,36 +1,6 @@
 const express = require('express');
-require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb')
 const authMiddleware = require('./authMiddleware')
-
-const pw = process.env.MONGODB_PW;
-const dbUser = process.env.MONGODB_USER;
-const mongoDbCluster = process.env.MONGODB_CLUSTER;
-const url = `mongodb+srv://andiadmin:${pw}@cluster0.swbor.mongodb.net/casbinExampleApp?retryWrites=true&w=majority`;
-
-/**
- * Connect to the mongoDB database (without mongoose)
- */
-const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect().then(() => {
-  console.log('Connected to MongoDB');
-  const db = client.db('casbinExampleApp');
-  const users = db.collection('users');
-
-  // add a user
-  // users.insertOne({ name: 'Andi', group: 'admin' }).then((result) => {
-  //   console.log('Added user:', result);
-  // });
-
-  // show all users
-  users.find({}).toArray().then((result) => {
-    console.log('All users:', result);
-  })
-
-
-}).catch(err => {
-  console.log('Error connecting to MongoDB', err);
-});
+const mongodriver = require('./mongo-driver')
 
 /**
  * Create the express app
@@ -38,6 +8,9 @@ client.connect().then(() => {
 const app = express();
 const port = 3000;
 
+// Add these lines to enable body parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(authMiddleware);
 
@@ -62,6 +35,46 @@ app.patch('/allowlist/:id', (req, res) => {
 
 app.delete('/allowlist/:id', (req, res) => {
   res.send(`DELETE /allowlist/* with params: ${JSON.stringify(req.params)}`);
+});
+
+app.get('/users', async (req, res) => {
+  try {
+    // get mongo client
+    const mongoClient = await mongodriver.getConnection();
+
+    const users = await mongodriver.getAllUsers(mongoClient);
+    res.send(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+// Create a new user
+app.post('/users', async (req, res) => {
+  try {
+    // get body
+    const body = req.body;
+
+    console.log(`body =`, body)
+
+    const user = {
+      username: body.username,
+      group: body.group,
+    }
+
+    // get mongo client
+    const mongoClient = await mongodriver.getConnection();
+
+    // create user
+    const mongoresult = await mongodriver.createUser(mongoClient, user);
+    res.send({
+      "id": mongoresult.insertedId,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  }
 });
 
 app.get('/users/info', (req, res) => {
