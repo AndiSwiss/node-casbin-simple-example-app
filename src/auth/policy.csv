@@ -1,7 +1,18 @@
+# Routes
+# ======
 p, user, /allowlist, GET
 p, user, /users/info, GET
 
 p, poweruser, /allowlist, POST
 p, poweruser, /allowlist/*, (GET)|(PATCH)|(DELETE)
 
+
+# Transitive groups
+# =================
 g, poweruser, user
+
+
+# Users
+# =====
+g, Andi, poweruser
+g, Hugo, user

@@ -15,17 +15,19 @@ const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology:
 client.connect().then(() => {
   console.log('Connected to MongoDB');
   const db = client.db('casbinExampleApp');
-  const notes = db.collection('notes');
+  const users = db.collection('users');
 
-  // show all notes
-  notes.find({}).toArray().then((result) => {
-    console.log('All notes:', result);
+  // add a user
+  // users.insertOne({ name: 'Andi', group: 'admin' }).then((result) => {
+  //   console.log('Added user:', result);
+  // });
+
+  // show all users
+  users.find({}).toArray().then((result) => {
+    console.log('All users:', result);
   })
 
-  // add a note
-  // notes.insertOne({ content: 'Easy with Copilot', important: true }).then((result) => {
-  //   console.log('Note added:', result);
-  // });
+
 }).catch(err => {
   console.log('Error connecting to MongoDB', err);
 });
