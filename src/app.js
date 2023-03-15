@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb')
-const authMiddleware = require('./auth/authMiddleware')
+const authMiddleware = require('./authMiddleware')
 
 const pw = process.env.MONGODB_PW;
 const dbUser = process.env.MONGODB_USER;

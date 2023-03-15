@@ -6,7 +6,7 @@ const { newEnforcer } = require('casbin')
  */
 const initEnforcer = async () => {
   if (!initEnforcer.enforcer) {
-    initEnforcer.enforcer = await newEnforcer('src/auth/model.conf', 'src/auth/policy.csv');
+    initEnforcer.enforcer = await newEnforcer('./src/auth/model.conf', './src/auth/policy.csv');
     console.log('Enforcer initialized');
   }
   return initEnforcer.enforcer;
