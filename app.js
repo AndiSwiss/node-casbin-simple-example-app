@@ -4,7 +4,7 @@ const { newEnforcer } = require('casbin');
 const app = express();
 const port = 3000;
 
-async function authMiddleware(req, res, next) {
+const authMiddleware = async (req, res, next) => {
   const enforcer = await newEnforcer('model.conf', 'policy.csv');
 
   const user = req.get('user-group');
@@ -30,16 +30,16 @@ app.post('/allowlist', (req, res) => {
   res.send('POST /allowlist');
 });
 
-app.get('/allowlist/*', (req, res) => {
-  res.send('GET /allowlist/*');
+app.get('/allowlist/:id', (req, res) => {
+  res.send(`GET /allowlist/* with params: ${JSON.stringify(req.params)}`);
 });
 
-app.patch('/allowlist/*', (req, res) => {
-  res.send('PATCH /allowlist/*');
+app.patch('/allowlist/:id', (req, res) => {
+  res.send(`PATCH /allowlist/* with params: ${JSON.stringify(req.params)}`);
 });
 
-app.delete('/allowlist/*', (req, res) => {
-  res.send('DELETE /allowlist/*');
+app.delete('/allowlist/:id', (req, res) => {
+  res.send(`DELETE /allowlist/* with params: ${JSON.stringify(req.params)}`);
 });
 
 app.get('/users/info', (req, res) => {
