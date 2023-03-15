@@ -1,8 +1,7 @@
 p, user, /allowlist, GET
 p, user, /users/info, GET
-p, user, /allowlist/*, GET
-p, user, /allowlist/*, PATCH
+
 p, poweruser, /allowlist, POST
-p, poweruser, /allowlist/*, DELETE
+p, poweruser, /allowlist/*, (GET)|(PATCH)|(DELETE)
 
 g, poweruser, user
