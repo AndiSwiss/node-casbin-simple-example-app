@@ -1,8 +1,8 @@
 const express = require('express');
-const { newEnforcer } = require('casbin');
 require('dotenv').config()
 const mongoose = require('mongoose')
 // const { MongoClient, ServerApiVersion } = require('mongodb')
+const authMiddleware = require('./auth/authMiddleware')
 
 const pw = process.env.MONGODB_PW;
 const dbUser = process.env.MONGODB_USER;
@@ -23,10 +23,10 @@ const note = new Note({
   content: 'HTML is Easy!!!',
   important: true,
 })
-note.save().then(result => {
-  console.log('note saved!')
-  mongoose.connection.close()
-})
+// note.save().then(result => {
+//   console.log('note saved!')
+//   mongoose.connection.close()
+// })
 
 
 /**
@@ -47,21 +47,6 @@ note.save().then(result => {
 const app = express();
 const port = 3000;
 
-const authMiddleware = async (req, res, next) => {
-  const enforcer = await newEnforcer('model.conf', 'policy.csv');
-
-  const user = req.get('user-group');
-  const path = req.path;
-  const method = req.method;
-
-  const allowed = await enforcer.enforce(user, path, method);
-
-  if (allowed) {
-    next();
-  } else {
-    res.status(403).send('Forbidden');
-  }
-}
 
 app.use(authMiddleware);
 
