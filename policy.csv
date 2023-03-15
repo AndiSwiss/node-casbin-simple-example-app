@@ -1,0 +1,8 @@
+p, user, /allowlist, GET
+p, user, /users/info, GET
+p, poweruser, /allowlist, POST
+p, poweruser, /allowlist/*, GET
+p, poweruser, /allowlist/*, PATCH
+p, poweruser, /allowlist/*, DELETE
+
+g, poweruser, user
