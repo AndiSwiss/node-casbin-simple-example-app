@@ -137,5 +137,20 @@ router.get('/info', (req, res) => {
   res.send('GET /users/info')
 })
 
+/**
+ * Get all routing policies
+ */
+router.get('/routing-policies', async (req, res) => {
+  try {
+    const e = await getEnforcer();
+    const policies = await e.getPolicy()
+    // sorted by route (second element)
+    policies.sort((a, b) => a[1].localeCompare(b[1]))
+    res.send({ policies })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Internal server error')
+  }
+});
 
 module.exports = router
