@@ -6,11 +6,14 @@ const router = express.Router()
 
 router.get('/', async (req, res) => {
   try {
-    // get mongo client
-    const mongoClient = await mongodriver.getConnection()
-
-    const users = await mongodriver.getAllUsers(mongoClient)
-    res.send(users)
+    const e = await getEnforcer();
+    let allUsers = await e.getGroupingPolicy()
+    // Remove the (transitive) poweruser and admin from the list
+    allUsers = allUsers.filter(p => p[0] !== 'poweruser' && p[0] !== 'admin')
+    const users = allUsers.filter(p => p[1] === 'user').map(p => p[0])
+    const powerUsers = allUsers.filter(p => p[1] === 'poweruser').map(p => p[0])
+    const admins = allUsers.filter(p => p[1] === 'admin').map(p => p[0])
+    res.send({ users, powerUsers, admins, allUsers })
   } catch (error) {
     console.error(error)
     res.status(500).send('Internal server error')
