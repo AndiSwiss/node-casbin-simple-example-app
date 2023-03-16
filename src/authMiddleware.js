@@ -27,43 +27,24 @@ const getEnforcer = async () => {
     const e = await newEnforcer('./src/auth/model.conf', adapter);
 
     await e.loadPolicy();
-    /**
-     # Routes
-     # ======
-     p, user, /allowlist, GET
-     p, user, /users, GET
-     p, user, /users/info, GET
 
-     p, poweruser, /allowlist, POST
-     p, poweruser, /allowlist/*, (GET)|(PATCH)|(DELETE)
-
-     p, admin, /users, POST
-     p, admin, /users/*, (GET)|(PATCH)|(DELETE)
-
-     # Transitive groups
-     # =================
-     g, poweruser, user
-     g, admin, poweruser
-
-     # Users
-     # =====
-g, Victor, admin
-g, Jack, poweruser
-     g, Hugo, user
-     */
-    // TODO: put the following in a special route for initializing the database
-    await e.addPolicy('user', '/allowlist', 'GET');
-    await e.addPolicy('user', '/users', 'GET');
-    await e.addPolicy('user', '/users/info', 'GET');
-    await e.addPolicy('poweruser', '/allowlist', 'POST');
-    await e.addPolicy('poweruser', '/allowlist/*', '(GET)|(PATCH)|(DELETE)');
-    await e.addPolicy('admin', '/users', 'POST');
-    await e.addPolicy('admin', '/users/*', '(GET)|(PATCH)|(DELETE)');
-    await e.addGroupingPolicy('poweruser', 'user');
-    await e.addGroupingPolicy('admin', 'poweruser');
-    await e.addGroupingPolicy('Andi', 'admin');
-    await e.addGroupingPolicy('Jonas', 'poweruser');
-    await e.addGroupingPolicy('Hugo', 'user');
+    // Load default values if policy is empty
+    const allPolicies = await e.getPolicy();
+    if (allPolicies.length === 0) {
+      await e.addPolicy('user', '/allowlist', 'GET');
+      await e.addPolicy('user', '/users', 'GET');
+      await e.addPolicy('user', '/users/info', 'GET');
+      await e.addPolicy('poweruser', '/allowlist', 'POST');
+      await e.addPolicy('poweruser', '/allowlist/*', '(GET)|(PATCH)|(DELETE)');
+      await e.addPolicy('admin', '/users', 'POST');
+      await e.addPolicy('admin', '/users/*', '(GET)|(PATCH)|(DELETE)');
+      await e.addGroupingPolicy('poweruser', 'user');
+      await e.addGroupingPolicy('admin', 'poweruser');
+      await e.addGroupingPolicy('Victor', 'admin');
+      await e.addGroupingPolicy('Jack', 'poweruser');
+      await e.addGroupingPolicy('Hugo', 'user');
+      console.log('Default policy loaded');
+    }
 
     // TODO: change the endpoint  POST /users to await e.addGroupingPolicy(${username}, ${group});
     // TODO: same with endpoints PATCH / DELETE /users/:id
