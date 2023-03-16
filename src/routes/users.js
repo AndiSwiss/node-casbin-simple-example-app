@@ -1,5 +1,6 @@
 const express = require('express')
 const mongodriver = require('../mongo-driver')
+const { getEnforcer } = require('../authMiddleware')
 const router = express.Router()
 
 
@@ -17,31 +18,38 @@ router.get('/', async (req, res) => {
 })
 
 // Create a new user
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   try {
     // get body
     const body = req.body
-
-    console.log(`body =`, body)
-
-    const user = {
-      username: body.username,
-      group: body.group
+    const username = body?.username;
+    const group = body?.group;
+    if (!username || !group) {
+      res.status(400).send('Bad request')
+      return
     }
 
-    // get mongo client
-    const mongoClient = await mongodriver.getConnection()
-
-    // create user
-    const mongoresult = await mongodriver.createUser(mongoClient, user)
-    res.send({
-      'id': mongoresult.insertedId,
-      'username': user.username,
-      'group': user.group
-    })
+    const e = await getEnforcer();
+    let success = await e.addGroupingPolicy(username, group)
+    if (success) {
+      res.status(200).send('OK')
+      const policies = await e.getGroupingPolicy()
+      console.log(`policies =`, policies)
+    } else {
+      // Nice: with e.getGroupingPolicy() we can check if the user was added
+      // e.groupingPolicy is an array of arrays, where each array is a policy
+      // e.g. [["alice", "admin"], ["bob", "admin"]]
+      const policies = await e.getGroupingPolicy()
+      console.log(`policies =`, policies)
+      if (policies.some(p => p[0] === username && p[1] === group)) {
+        res.status(200).send('OK, already added')
+      } else {
+        res.status(500).send('Internal server error, could not add user')
+      }
+    }
   } catch (error) {
     console.error(error)
-    res.status(500).send('Internal server error')
+    next(error)
   }
 })
 

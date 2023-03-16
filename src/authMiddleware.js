@@ -12,8 +12,8 @@ const dbUrl = `mongodb+srv://${dbUser}:${pw}@${mongoDbCluster}/casbinExampleApp?
  * Async singleton initialization of the enforcer
  * @returns {Promise<*>} enforcer
  */
-const initEnforcer = async () => {
-  if (!initEnforcer.enforcer) {
+const getEnforcer = async () => {
+  if (!getEnforcer.enforcer) {
 
     // dbUrl, 'casbinExampleApp', 'casbinRules'
     const adapter = await MongoAdapter.newAdapter({
@@ -23,7 +23,6 @@ const initEnforcer = async () => {
     });
 
     const e = await newEnforcer('./src/auth/model.conf', adapter);
-
 
     await e.loadPolicy();
     /**
@@ -50,6 +49,7 @@ g, Victor, admin
 g, Jack, poweruser
      g, Hugo, user
      */
+    // TODO: put the following in a special route for initializing the database
     await e.addPolicy('user', '/allowlist', 'GET');
     await e.addPolicy('user', '/users', 'GET');
     await e.addPolicy('user', '/users/info', 'GET');
@@ -63,12 +63,16 @@ g, Jack, poweruser
     await e.addGroupingPolicy('Jonas', 'poweruser');
     await e.addGroupingPolicy('Hugo', 'user');
 
-    console.log(`e.getAllActions() =`, await e.getAllActions())
+    // TODO: change the endpoint  POST /users to await e.addGroupingPolicy(${username}, ${group});
+    // TODO: same with endpoints PATCH / DELETE /users/:id
+    // TODO: change endpoint GET /users to await e.getFilteredGroupingPolicy(1, ${group});  ??
+    // TODO: change endpoint GET /users/:id to await e.getFilteredGroupingPolicy(0, ${username});
+    //       NOTE: there is great code-completion for e.
 
-    initEnforcer.enforcer = e;
+    getEnforcer.enforcer = e;
     console.log('Enforcer initialized');
   }
-  return initEnforcer.enforcer;
+  return getEnforcer.enforcer;
 }
 
 /**
@@ -84,7 +88,7 @@ const authMiddleware = async (req, res, next) => {
   // const enforcer = await newEnforcer('./src/auth/model.conf', './src/auth/policy.csv');
 
   // singleton initialization of the enforcer
-  const enforcer = await initEnforcer();
+  const enforcer = await getEnforcer();
 
   const user = req.get('user-group');
   const path = req.path;
@@ -99,4 +103,4 @@ const authMiddleware = async (req, res, next) => {
   }
 }
 
-module.exports = authMiddleware;
+module.exports = { authMiddleware, getEnforcer };
