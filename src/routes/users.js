@@ -1,6 +1,6 @@
 const express = require('express')
 const mongodriver = require('../mongo-driver')
-const { getEnforcer } = require('../authMiddleware')
+const { getEnforcer, allowedGroups } = require('../authMiddleware')
 const router = express.Router()
 
 
@@ -26,6 +26,11 @@ router.post('/', async (req, res, next) => {
     const group = body?.group;
     if (!username || !group) {
       res.status(400).send('Bad request')
+      return
+    }
+
+    if (allowedGroups.indexOf(group) === -1) {
+      res.status(400).send('Bad request, invalid group')
       return
     }
 

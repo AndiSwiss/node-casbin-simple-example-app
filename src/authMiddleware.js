@@ -8,6 +8,8 @@ const dbUser = process.env.MONGODB_USER;
 const mongoDbCluster = process.env.MONGODB_CLUSTER;
 const dbUrl = `mongodb+srv://${dbUser}:${pw}@${mongoDbCluster}/casbinExampleApp?retryWrites=true&w=majority`;
 
+const allowedGroups = ['user', 'poweruser', 'admin'];
+
 /**
  * Async singleton initialization of the enforcer
  * @returns {Promise<*>} enforcer
@@ -103,4 +105,4 @@ const authMiddleware = async (req, res, next) => {
   }
 }
 
-module.exports = { authMiddleware, getEnforcer };
+module.exports = { authMiddleware, getEnforcer, allowedGroups };
