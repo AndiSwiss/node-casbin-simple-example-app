@@ -4,7 +4,7 @@ const userRouter = require('./routes/users');
 const allowlistRouter = require('./routes/allowlist');
 
 const app = express();
-const port = 3000;
+const port = 3003;
 
 // Add these lines to enable body parsing
 app.use(express.json());

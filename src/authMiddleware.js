@@ -21,7 +21,6 @@ const getEnforcer = async () => {
     const adapter = await MongoAdapter.newAdapter({
       uri: dbUrl,
       collection: 'casbinRules',
-      database: 'casbinExampleApp',
     });
 
     const e = await newEnforcer('./src/auth/model.conf', adapter);
