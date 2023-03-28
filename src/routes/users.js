@@ -1,12 +1,13 @@
 const express = require('express')
-const mongodriver = require('../mongo-driver')
 const { getEnforcer, allowedGroups } = require('../authMiddleware')
 const router = express.Router()
 
-
+/**
+ * Get all users
+ */
 router.get('/', async (req, res) => {
   try {
-    const e = await getEnforcer();
+    const e = await getEnforcer()
     let allUsers = await e.getGroupingPolicy()
     // Remove the (transitive) poweruser and admin from the list
     allUsers = allUsers.filter(p => p[0] !== 'poweruser' && p[0] !== 'admin')
@@ -20,13 +21,15 @@ router.get('/', async (req, res) => {
   }
 })
 
-// Create a new user
+/**
+ * Create a new user
+ */
 router.post('/', async (req, res, next) => {
   try {
     // get body
     const body = req.body
-    const username = body?.username;
-    const group = body?.group;
+    const username = body?.username
+    const group = body?.group
     if (!username || !group) {
       res.status(400).send('Bad request')
       return
@@ -37,7 +40,7 @@ router.post('/', async (req, res, next) => {
       return
     }
 
-    const e = await getEnforcer();
+    const e = await getEnforcer()
     let success = await e.addGroupingPolicy(username, group)
     if (success) {
       res.status(200).send('OK')
@@ -65,76 +68,22 @@ router.post('/', async (req, res, next) => {
  * Patch user
  */
 router.patch('/:id', async (req, res) => {
-  try {
-    // get body
-    const body = req.body
-
-    // get mongo client
-    const mongoClient = await mongodriver.getConnection()
-
-    // get user id
-    const userID = req.params.id
-
-    // get user
-    const user = await mongodriver.getUser(mongoClient, userID)
-
-
-    // update user
-    if (body.username !== undefined) user.username = body.username
-    if (body.group !== undefined) user.group = body.group
-
-    console.log(`user =`, user)
-
-    // update user
-    await mongodriver.updateUser(mongoClient, userID, user)
-    res.send({
-      'id': user._id,
-      'username': user.username,
-      'group': user.group,
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('Internal server error')
-  }
+  res.status(501).send('PATCH user is not yet implemented')
 })
 
 /**
  * Delete user
  */
 router.delete('/:id', async (req, res) => {
-  try {
-    // get mongo client
-    const mongoClient = await mongodriver.getConnection()
-
-    // get user id
-    const userID = req.params.id
-
-    // delete user
-    await mongodriver.deleteUser(mongoClient, userID)
-    res.sendStatus(200)
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('Internal server error')
-  }
+  res.status(501).send('DELETE user is not yet implemented')
 })
 
 
 /**
  * Get user info
- * @openapi
- * /users/info:
- *  get:
- *  description: get user info
- *  produces:
- *  - application/json
- *  responses:
- *  200:
- *  description: user info
- *  403:
- *  description: forbidden
  */
 router.get('/info', (req, res) => {
-  res.send('GET /users/info')
+  res.send('GET /users/info - not yet implemented')
 })
 
 /**
@@ -142,7 +91,7 @@ router.get('/info', (req, res) => {
  */
 router.get('/routing-policies', async (req, res) => {
   try {
-    const e = await getEnforcer();
+    const e = await getEnforcer()
     const policies = await e.getPolicy()
     // sorted by route (second element)
     policies.sort((a, b) => a[1].localeCompare(b[1]))
@@ -151,6 +100,6 @@ router.get('/routing-policies', async (req, res) => {
     console.error(error)
     res.status(500).send('Internal server error')
   }
-});
+})
 
 module.exports = router
