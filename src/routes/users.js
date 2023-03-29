@@ -14,7 +14,12 @@ router.get('/', async (req, res) => {
     const users = allUsers.filter(p => p[1] === 'user').map(p => p[0])
     const powerUsers = allUsers.filter(p => p[1] === 'poweruser').map(p => p[0])
     const admins = allUsers.filter(p => p[1] === 'admin').map(p => p[0])
-    res.send({ users, powerUsers, admins, allUsers })
+    const allUsersNoGroups = allUsers.map(p => p[0])
+
+    // Transform to object in style {sub: 'alice', role: 'admin'}
+    allUsers = allUsers.map(p => ({ sub: p[0], role: p[1] }))
+
+    res.send({ users, powerUsers, admins, allUsers, allUsersNoGroups })
   } catch (error) {
     console.error(error)
     res.status(500).send('Internal server error')
@@ -65,18 +70,68 @@ router.post('/', async (req, res, next) => {
 })
 
 /**
- * Patch user
+ * Delete user by username
  */
-router.patch('/:id', async (req, res) => {
-  res.status(501).send('PATCH user is not yet implemented')
+router.delete('/:username', async (req, res) => {
+  try {
+    const username = req.params.username
+    const e = await getEnforcer()
+    // Get the current roles for user 'Andi'
+    const roles = await e.getRolesForUser(username);
+    // Remove all existing roles
+    for (const role of roles) {
+      await e.removeGroupingPolicy(username, role);
+    }
+    await e.savePolicy();
+    res.status(200).send('OK')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Internal server error, could not delete user')
+  }
 })
 
+
 /**
- * Delete user
+ * Patch user
  */
-router.delete('/:id', async (req, res) => {
-  res.status(501).send('DELETE user is not yet implemented')
+router.patch('/:username', async (req, res) => {
+  try {
+    const username = req.params.username
+    const body = req.body
+    const group = body?.group
+    if (!group) {
+      res.status(400).send('Bad request, group missing')
+      return
+    }
+
+    if (allowedGroups.indexOf(group) === -1) {
+      res.status(400).send('Bad request, invalid group')
+      return
+    }
+
+    const e = await getEnforcer()
+    // Check if the user exists
+    const users = await e.getGroupingPolicy()
+    if (!users.some(u => u[0] === username)) {
+      res.status(400).send('Bad request, user does not exist')
+      return
+    }
+    // Get the current roles for user
+    const roles = await e.getRolesForUser(username);
+    // Remove all existing roles
+    for (const role of roles) {
+      await e.removeGroupingPolicy(username, role);
+    }
+    // Add the new role
+    await e.addGroupingPolicy(username, group);
+    await e.savePolicy();
+    res.status(200).send('OK')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Internal server error')
+  }
 })
+
 
 
 /**
