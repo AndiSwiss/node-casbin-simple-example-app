@@ -45,6 +45,8 @@ router.post('/', async (req, res, next) => {
       return
     }
 
+    // TODO: check if user already exists with another role!!
+
     const e = await getEnforcer()
     let success = await e.addGroupingPolicy(username, group)
     if (success) {
@@ -76,12 +78,10 @@ router.delete('/:username', async (req, res) => {
   try {
     const username = req.params.username
     const e = await getEnforcer()
-    // Get the current roles for user 'Andi'
+    // Get the current roles for user
     const roles = await e.getRolesForUser(username);
     // Remove all existing roles
-    for (const role of roles) {
-      await e.removeGroupingPolicy(username, role);
-    }
+    await Promise.all(roles.map(async (role) => e.removeGroupingPolicy(username, role)));
     await e.savePolicy();
     res.status(200).send('OK')
   } catch (error) {
