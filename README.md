@@ -10,6 +10,7 @@ MONGODB_CLUSTER=<your_mongodb_cluster>
 ```
 
 ## Usage
+Note: The endpoint /allowlist has only a dummy implementation; the /users endpoint is fairly elaborate (implemented: list all users, create user, update user, delete user, get all routing policies).
 
 Tested with Postman. Example requests:
 
@@ -27,7 +28,7 @@ Header must contain `user-group: poweruser`
 
 
 ## Versions
-Important: We have a quite old mongoDB version => see package.json. "^3.5.9". Hence, only
+Important: Here are some older MongoDB-versions tested => see package.json. "^3.5.9". Hence, only
 an older version of "casbin-mongodb-adapter" ("^1.2.3") is compatible.
 
 => https://www.npmjs.com/package/casbin-mongodb-adapter/v/1.2.3?activeTab=readme
