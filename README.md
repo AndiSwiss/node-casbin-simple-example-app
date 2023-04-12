@@ -1,16 +1,24 @@
 # Casbin example for securing endpoints in express
 
+## Setup
+This example app works with a cloud MongoDB => https://www.mongodb.com/cloud/atlas.
+Create a `.env` file and enter your cloud MongoDB credentials:
+```
+MONGODB_USER=<your_mongodb_user>
+MONGODB_PW=<your_mongodb_pw>
+MONGODB_CLUSTER=<your_mongodb_cluster>
+```
 
-
+## Usage
 
 Tested with Postman. Example requests:
 
-## Users and Powerusers
+### Users and Powerusers
 Header must contain `user-group: user` or `user-group: poweruser`
 - GET http://localhost:3000/users/info
 - GET http://localhost:3000/allowlist
 
-## Powerusers only
+### Powerusers only
 Header must contain `user-group: poweruser`
 - POST http://localhost:3000/allowlist
 - GET http://localhost:3000/allowlist/42  (or any other id)
